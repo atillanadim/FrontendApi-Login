@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda App - Consultar Contacto</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Agenda App - Menu</h1>
+        <h2>Consultar Contacto</h2>
+        <form id="searchForm">
+            <input type="number" id="searchId" placeholder="ID do Contacto" required>
+            <button type="submit">Consultar</button>
+        </form>
+        <div id="loading" class="hidden">Carregando...</div>
+        <div id="contactDetails" class="hidden">
+            <h2>Detalhes do Contacto</h2>
+            <p><strong>Nome:</strong> <span id="nome"></span></p>
+            <p><strong>Morada:</strong> <span id="morada"></span></p>
+            <p><strong>Contacto:</strong> <span id="contacto"></span></p>
+            <p><strong>Número de Aluno:</strong> <span id="numeroAluno"></span></p>
+            <p><strong>Idade:</strong> <span id="idade"></span></p>
+        </div>
+        <p><a href="registar.html">Registar Contacto</a> | <a href="listar.html">Listar Contactos</a> | <a href="pesquisar.html">Pesquisar Contacto</a></p>
+        <button type="button" id="submit" onclick="logOut()">Sair</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+
+    <script>
+        
+    document.getElementById('searchForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const searchId = document.getElementById('searchId').value;
+
+        try {
+            loading.classList.remove('hidden');
+            contactDetails.classList.add('hidden');
+
+            const formData = new FormData();
+            formData.append('id', searchId);
+            console.log([...formData.entries()]); // Mostra os pares chave-valor enviados
+
+            const response = await fetch('http://240326api.reaperpt.com/listaFichaById.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+                    //saber se é json
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("Resposta não é JSON");
+            }
+
+            const contact = await response.json();
+
+            if (contact && !contact.error) {
+                document.getElementById('nome').textContent = contact.nome;
+                document.getElementById('morada').textContent = contact.morada;
+                document.getElementById('contacto').textContent = contact.contacto;
+                document.getElementById('numeroAluno').textContent = contact.numeroAluno;
+                document.getElementById('idade').textContent = contact.idade;
+
+                contactDetails.classList.remove('hidden');
+                gsap.from(contactDetails, { 
+                    opacity: 0, 
+                    y: 20, 
+                    duration: 0.5,
+                    ease: 'power2.out' 
+                });
+            } else {
+                alert('Contacto não encontrado.');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao consultar contacto. Por favor, tente novamente.');
+        } finally {
+            loading.classList.add('hidden');
+        }
+    });
+
+    </script>
+</body>
+</html>
+

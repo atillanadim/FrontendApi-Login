@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda App - Listar Contactos</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Agenda App - Menu</h1>
+        <h2>Listar Dados</h2>
+        <button id="listarBtn">Listar</button>
+        <div id="result"></div>
+        <p><a href="registar.html">Registar Contacto</a> | <a href="pesquisar.html">Pesquisar Contacto</a> | <a href="consultar.html">Consultar Contacto</a></p> <br><br>
+        <button type="button" id="submit" onclick="logOut()">logOut</button><br><br>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    
+    <script>
+        
+        // listar 
+// Função para criar elementos
+    function createNode(element) {
+        return document.createElement(element);
+      }
+  
+      // Função para anexar elementos
+      function append(parent, el) {
+        return parent.appendChild(el);
+      }
+  
+      const listarBtn = document.getElementById('listarBtn');
+      const resultDiv = document.getElementById('result');
+      const url = 'http://240326api.reaperpt.com/listFicha.php';
+  
+      listarBtn.addEventListener('click', function () {
+        fetch(url)
+          .then((resp) => resp.json()) // Converte a resposta para JSON
+          .then(function (data) {
+            // Cria a tabela
+            const table = createNode('table');
+            const thead = createNode('thead');
+            const tbody = createNode('tbody');
+            const headerRow = createNode('tr');
+  
+            // Usa as chaves do primeiro objeto como cabeçalhos
+            const headers = Object.keys(data[0]);
+            headers.forEach(header => {
+              const th = createNode('th');
+              th.textContent = header;
+              append(headerRow, th);
+            });
+            append(thead, headerRow);
+            append(table, thead);
+  
+            // Cria as linhas da tabela
+            data.forEach(item => {
+              const row = createNode('tr');
+              headers.forEach(header => {
+                const td = createNode('td');
+                td.textContent = item[header];
+                append(row, td);
+              });
+              append(tbody, row);
+            });
+            append(table, tbody);
+  
+            // Exibe a tabela na página
+            resultDiv.innerHTML = ''; // Limpa qualquer conteúdo anterior
+            append(resultDiv, table);
+          })
+          .catch(function (error) {
+            console.log('Erro ao buscar dados:', error);
+            resultDiv.innerHTML = `<p style="color: red;">Erro ao buscar dados: ${error.message}</p>`;
+          });
+      });
+
+                gsap.from('tr', { 
+                    opacity: 0, 
+                    y: 20, 
+                    stagger: 0.1, 
+                    duration: 0.5,
+                    ease: 'power2.out' 
+                });
+        
+    loadContacts();
+    </script>
+</body>
+</html>
+

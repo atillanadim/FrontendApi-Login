@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js"></script>
+</head>
+<body>
+    <h2>Login</h2><br><br>
+    <form id="loginForm">
+        <label for="username">Usuário:</label>
+        <input type="text" id="username" name="user" required><br><br>
+        
+        <label for="password">Senha:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        
+        <button id="loginButton" type="submit">Login</button><br>
+        <button id="registerButton" type="button">Cadastrar</button>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script>
+        // Evento de Login
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault(); // Impede o envio padrão do formulário
+
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            const xhttp = new XMLHttpRequest();
+            const apiURL = `http://240326api.reaperpt.com/login.php?user=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+        
+            xhttp.open('GET', apiURL, true); 
+            xhttp.send();
+
+            xhttp.onload = () => {
+                if (xhttp.status === 200) {
+                    const responseText = xhttp.responseText.trim();
+                    console.log("Resposta do servidor:", responseText);
+
+                    if (responseText.toLowerCase().includes("sucesso")) {
+                        localStorage.setItem("username", username);
+                        window.location.href = "loggedin.html"; // Redireciona em caso de sucesso
+                    } else {
+                        alert("Erro no login: " + responseText);
+                    }
+                } else {
+                    alert("Erro ao conectar à API. Código: " + xhttp.status);
+                }
+            };
+
+            xhttp.onerror = () => {
+                alert("Erro de conexão com o servidor.");
+            };
+        });
+
+        // Evento de Registro
+        document.getElementById("registerButton").addEventListener("click", function () {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (!username || !password) {
+                alert("Preencha todos os campos para se registrar.");
+                return;
+            }
+
+            const xhttp = new XMLHttpRequest();
+            const apiURL = `http://240326api.reaperpt.com/register.php?user=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+            
+            xhttp.open('GET', apiURL, true);
+            xhttp.send();
+
+            xhttp.onload = () => {
+                if (xhttp.status === 200) {
+                    const responseText = xhttp.responseText.trim();
+                    console.log("Resposta do servidor:", responseText);
+
+                    if (responseText.toLowerCase().includes("sucesso")) {
+                        alert("Registro bem-sucedido!");
+                        window.location.href = "loggedin.html"; // Redireciona após registro
+                    } else {
+
+                    }
+                } else {
+                    alert("Erro ao registrar. Código: " + xhttp.status);
+                }
+            };
+
+            xhttp.onerror = () => {
+                alert("Erro de conexão com o servidor.");
+            };
+        });
+
+        // Animação inicial
+        gsap.from('form', {
+            opacity: 0,
+            y: 20,
+            duration: 0.5,
+            ease: 'power2.out'
+        });
+    </script>
+</body>
+</html>
